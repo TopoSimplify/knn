@@ -34,7 +34,7 @@ func ScoreFn(query igeom.IGeom) func(_, item rtree.BoxObj) float64 {
 		if mb, ok = item.(*mbr.MBR); ok {
 			other = box.MBRToPolygon(mb)
 		} else { //item is either ctxgeom or node.Node
-			if other, ok = item.(*ctx.CtxGeom); !ok {
+			if other, ok = item.(*ctx.ContextGeometry); !ok {
 				other = item.(*node.Node)
 			}
 		}
