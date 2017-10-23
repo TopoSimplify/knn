@@ -1,13 +1,15 @@
 package knn
 
 import (
-	"github.com/intdxdt/rtree"
-	"simplex/igeom"
-	"github.com/intdxdt/mbr"
 	"simplex/ctx"
 	"simplex/box"
 	"simplex/node"
+	"simplex/igeom"
+	"github.com/intdxdt/mbr"
+	"github.com/intdxdt/rtree"
 )
+
+const EpsilonDist = 1.0e-5
 
 //find knn
 func Find(db *rtree.RTree, g rtree.BoxObj, dist float64,
