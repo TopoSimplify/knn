@@ -1,17 +1,17 @@
 package knn
 
 import (
+	"time"
 	"testing"
+	"simplex/node"
+	"simplex/pln"
+	"simplex/rng"
+	"simplex/dp"
 	"simplex/box"
 	"github.com/intdxdt/mbr"
 	"github.com/intdxdt/geom"
 	"github.com/intdxdt/rtree"
 	"github.com/franela/goblin"
-	"time"
-	"simplex/node"
-	"simplex/pln"
-	"simplex/rng"
-	"simplex/dp"
 )
 
 type iG struct{ g geom.Geometry }
