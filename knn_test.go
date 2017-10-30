@@ -2,12 +2,36 @@ package knn
 
 import (
 	"testing"
-	"github.com/intdxdt/geom"
-	"github.com/intdxdt/mbr"
-	"github.com/intdxdt/rtree"
 	"simplex/box"
+	"github.com/intdxdt/mbr"
+	"github.com/intdxdt/geom"
+	"github.com/intdxdt/rtree"
 	"github.com/franela/goblin"
+	"time"
+	"simplex/node"
+	"simplex/pln"
+	"simplex/rng"
+	"simplex/dp"
 )
+
+type iG struct{ g geom.Geometry }
+
+func (o *iG) Geometry() geom.Geometry {
+	return o.g
+}
+
+func linearCoords(wkt string) []*geom.Point {
+	return geom.NewLineStringFromWKT(wkt).Coordinates()
+}
+
+func createNodes(indxs [][]int, coords []*geom.Point) []*node.Node {
+	poly := pln.New(coords)
+	hulls := make([]*node.Node, 0)
+	for _, o := range indxs {
+		hulls = append(hulls, node.NewFromPolyline(poly, rng.NewRange(o[0], o[1]), dp.NodeGeometry))
+	}
+	return hulls
+}
 
 func TestDB(t *testing.T) {
 	g := goblin.Goblin(t)
@@ -46,6 +70,22 @@ func TestDB(t *testing.T) {
 			g.Assert(len(results) == 2)
 			results = Find(tree, q, 20, score_fn)
 			g.Assert(len(results) == 3)
+		})
+
+		g.It("should test k nearest node neighbour", func() {
+			g.Timeout(1 * time.Hour)
+
+			var coords = linearCoords("LINESTRING ( 780 600, 740 620, 720 660, 720 700, 760 740, 820 760, 860 740, 880 720, 900 700, 880 660, 840 680, 820 700, 800 720, 760 700, 780 660, 820 640, 840 620, 860 580, 880 620, 820 660 )")
+			var hulls = createNodes([][]int{{0, 3}, {3, 8}, {8, 13}, {13, 17}, {17, len(coords) - 1}}, coords)
+			tree := rtree.NewRTree(2)
+			for _, h := range hulls {
+				tree.Insert(h)
+			}
+			var q = hulls[0]
+			var vs = FindNeighbours(tree, q, 0)
+			g.Assert(len(vs)).Equal(2)
+			vs = FindNodeNeighbours(tree, q, 0)
+			g.Assert(len(vs)).Equal(1)
 		})
 	})
 }
