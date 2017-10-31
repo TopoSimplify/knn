@@ -7,12 +7,13 @@ import (
 	"simplex/igeom"
 	"github.com/intdxdt/mbr"
 	"github.com/intdxdt/rtree"
+	"simplex/db"
 )
 
 const EpsilonDist = 1.0e-5
 
 //find knn
-func Find(db *rtree.RTree, g rtree.BoxObj, dist float64,
+func Find(database *db.DB, g rtree.BoxObj, dist float64,
 	score func(rtree.BoxObj, rtree.BoxObj) float64,
 	predicate ... func(*rtree.KObj) (bool, bool)) []rtree.BoxObj {
 
@@ -23,7 +24,7 @@ func Find(db *rtree.RTree, g rtree.BoxObj, dist float64,
 		pred = PredicateFn(dist)
 	}
 
-	return db.KNN(g, -1, score, pred)
+	return database.KNN(g, -1, score, pred)
 }
 
 //score function

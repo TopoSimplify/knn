@@ -4,16 +4,17 @@ import (
 	"simplex/igeom"
 	"simplex/node"
 	"github.com/intdxdt/rtree"
+	"simplex/db"
 )
 
 //find context neighbours
-func FindNeighbours(database *rtree.RTree, query igeom.IGeom, dist float64) []rtree.BoxObj {
+func FindNeighbours(database *db.DB, query igeom.IGeom, dist float64) []rtree.BoxObj {
 	return Find(database, query.Geometry(), dist, ScoreFn(query))
 }
 
 //find context hulls
-func FindNodeNeighbours(hulldb *rtree.RTree, hull *node.Node, dist float64) []rtree.BoxObj {
-	return Find(hulldb, hull.Geometry(), dist, ScoreFn(hull), NodePredicateFn(hull, dist))
+func FindNodeNeighbours(database *db.DB, hull *node.Node, dist float64) []rtree.BoxObj {
+	return Find(database, hull.Geometry(), dist, ScoreFn(hull), NodePredicateFn(hull, dist))
 }
 
 //hull predicate within index range i, j.

@@ -12,6 +12,7 @@ import (
 	"github.com/intdxdt/geom"
 	"github.com/intdxdt/rtree"
 	"github.com/franela/goblin"
+	"simplex/db"
 )
 
 type iG struct{ g geom.Geometry }
@@ -61,7 +62,7 @@ func TestDB(t *testing.T) {
 			for _, wkt := range wkts {
 				objs = append(objs, geom.NewGeometry(wkt))
 			}
-			tree := rtree.NewRTree(8)
+			tree := db.NewDB(8)
 			tree.Load(objs)
 			q := geom.NewGeometry("POLYGON (( 370 300, 370 330, 400 330, 400 300, 370 300 ))")
 
@@ -77,7 +78,7 @@ func TestDB(t *testing.T) {
 
 			var coords = linearCoords("LINESTRING ( 780 600, 740 620, 720 660, 720 700, 760 740, 820 760, 860 740, 880 720, 900 700, 880 660, 840 680, 820 700, 800 720, 760 700, 780 660, 820 640, 840 620, 860 580, 880 620, 820 660 )")
 			var hulls = createNodes([][]int{{0, 3}, {3, 8}, {8, 13}, {13, 17}, {17, len(coords) - 1}}, coords)
-			tree := rtree.NewRTree(2)
+			tree := db.NewDB(2)
 			for _, h := range hulls {
 				tree.Insert(h)
 			}
