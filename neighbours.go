@@ -1,25 +1,24 @@
 package knn
 
 import (
-	"simplex/igeom"
-	"simplex/node"
-	"github.com/intdxdt/rtree"
-	"simplex/db"
+    "simplex/igeom"
+    "simplex/node"
+    "github.com/intdxdt/rtree"
 )
 
 //find context neighbours
-func FindNeighbours(database *db.DB, query igeom.IGeom, dist float64) []rtree.BoxObj {
-	return Find(database, query.Geometry(), dist, ScoreFn(query))
+func FindNeighbours(database *rtree.RTree, query igeom.IGeom, dist float64) []rtree.BoxObj {
+    return Find(database, query.Geometry(), dist, ScoreFn(query))
 }
 
 //find context hulls
-func FindNodeNeighbours(database *db.DB, hull *node.Node, dist float64) []rtree.BoxObj {
-	return Find(database, hull.Geometry(), dist, ScoreFn(hull), NodePredicateFn(hull, dist))
+func FindNodeNeighbours(database *rtree.RTree, hull *node.Node, dist float64) []rtree.BoxObj {
+    return Find(database, hull.Geometry(), dist, ScoreFn(hull), NodePredicateFn(hull, dist))
 }
 
 //hull predicate within index range i, j.
 func NodePredicateFn(query *node.Node, dist float64) func(*rtree.KObj) (bool, bool) {
-	//@formatter:off
+    //@formatter:off
 	return func(candidate *rtree.KObj) (bool, bool) {
 		var candhull = candidate.GetItem().(*node.Node)
 		var qgeom    = query.Geom
