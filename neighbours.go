@@ -1,8 +1,8 @@
 package knn
 
 import (
-    "simplex/igeom"
-    "simplex/node"
+    "github.com/TopoSimplify/igeom"
+    "github.com/TopoSimplify/node"
     "github.com/intdxdt/rtree"
 )
 

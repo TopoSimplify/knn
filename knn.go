@@ -1,12 +1,12 @@
 package knn
 
 import (
-	"simplex/ctx"
-	"simplex/box"
-	"simplex/node"
-	"simplex/igeom"
 	"github.com/intdxdt/mbr"
 	"github.com/intdxdt/rtree"
+	"github.com/TopoSimplify/ctx"
+	"github.com/TopoSimplify/box"
+	"github.com/TopoSimplify/node"
+	"github.com/TopoSimplify/igeom"
 )
 
 const EpsilonDist = 1.0e-5
