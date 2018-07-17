@@ -11,7 +11,6 @@ import (
 	"github.com/TopoSimplify/pln"
 	"github.com/TopoSimplify/rng"
 	"github.com/TopoSimplify/dp"
-	"github.com/TopoSimplify/box"
 )
 
 type iG struct{ g geom.Geometry }
@@ -20,15 +19,15 @@ func (o *iG) Geometry() geom.Geometry {
 	return o.g
 }
 
-func linearCoords(wkt string) []*geom.Point {
+func linearCoords(wkt string) []geom.Point {
 	return geom.NewLineStringFromWKT(wkt).Coordinates()
 }
 
-func createNodes(indxs [][]int, coords []*geom.Point) []*node.Node {
-	poly := pln.New(coords)
-	hulls := make([]*node.Node, 0)
-	for _, o := range indxs {
-		r := rng.NewRange(o[0], o[1])
+func createNodes(indxs [][]int, coords []geom.Point) []*node.Node {
+	var poly = pln.New(coords)
+	var hulls = make([]*node.Node, 0)
+	for i := range indxs {
+		var r = rng.Range(indxs[i][0], indxs[i][1])
 		hulls = append(hulls, node.New(poly.SubCoordinates(r), r, dp.NodeGeometry))
 	}
 	return hulls
@@ -47,29 +46,23 @@ func TestDB(t *testing.T) {
 		"POLYGON (( 410 340, 410 430, 420 430, 420 340, 410 340 ))",
 	}
 	g.Describe("rtree knn", func() {
-		score_fn := func(q, item rtree.BoxObj) float64 {
-			g := q.(geom.Geometry)
-			var other geom.Geometry
-			if o, ok := item.(*mbr.MBR); ok {
-				other = box.MBRToPolygon(o)
-			} else {
-				other = item.(geom.Geometry)
-			}
-			return g.Distance(other)
+		scoreFn := func(q *mbr.MBR, item *rtree.KObj) float64 {
+			return q.Distance(item.MBR)
 		}
 		g.It("should test k nearest neighbour", func() {
-			objs := make([]rtree.BoxObj, 0)
-			for _, wkt := range wkts {
-				objs = append(objs, geom.NewGeometry(wkt))
+			var objs = make([]*rtree.Obj, 0)
+			for i := range wkts {
+				var g = geom.ReadGeometry(wkts[i])
+				objs = append(objs, rtree.Object(i, g.BBox(), g))
 			}
-			tree := rtree.NewRTree(8)
+			var tree = rtree.NewRTree()
 			tree.Load(objs)
-			q := geom.NewGeometry("POLYGON (( 370 300, 370 330, 400 330, 400 300, 370 300 ))")
+			q := geom.ReadGeometry("POLYGON (( 370 300, 370 330, 400 330, 400 300, 370 300 ))")
 
-			results := Find(tree, q, 15, score_fn)
+			results := Find(tree, q, 15, scoreFn)
 
 			g.Assert(len(results) == 2)
-			results = Find(tree, q, 20, score_fn)
+			results = Find(tree, q, 20, scoreFn)
 			g.Assert(len(results) == 3)
 		})
 
@@ -79,11 +72,11 @@ func TestDB(t *testing.T) {
 			var coords = linearCoords("LINESTRING ( 780 600, 740 620, 720 660, 720 700, 760 740, 820 760, 860 740, 880 720, 900 700, 880 660, 840 680, 820 700, 800 720, 760 700, 780 660, 820 640, 840 620, 860 580, 880 620, 820 660 )")
 			var hulls = createNodes([][]int{{0, 3}, {3, 8}, {8, 13}, {13, 17}, {17, len(coords) - 1}}, coords)
 			tree := rtree.NewRTree(2)
-			for _, h := range hulls {
-				tree.Insert(h)
+			for i := range hulls {
+				tree.Insert(rtree.Object(i, hulls[i].BBox(), hulls[i]))
 			}
 			var q = hulls[0]
-			var vs = FindNeighbours(tree, q, 0)
+			var vs = FindNeighbours(tree, q.Geometry, 0)
 			g.Assert(len(vs)).Equal(2)
 			vs = FindNodeNeighbours(tree, q, 0)
 			g.Assert(len(vs)).Equal(1)

@@ -6,48 +6,54 @@ import (
 	"github.com/TopoSimplify/ctx"
 	"github.com/TopoSimplify/box"
 	"github.com/TopoSimplify/node"
-	"github.com/TopoSimplify/igeom"
+	"github.com/intdxdt/geom"
 )
 
 const EpsilonDist = 1.0e-5
 
 //find knn
-func Find(database *rtree.RTree, g rtree.BoxObj, dist float64,
-	score func(rtree.BoxObj, rtree.BoxObj) float64,
-	predicate ... func(*rtree.KObj) (bool, bool)) []rtree.BoxObj {
+func Find(database *rtree.RTree, g geom.Geometry, dist float64,
+	score func(*mbr.MBR, *rtree.KObj) float64,
+	predicate ... func(*rtree.KObj) (bool, bool)) []*rtree.Obj {
 
-	var pred func(*rtree.KObj) (bool, bool)
+	var fn func(*rtree.KObj) (bool, bool)
 	if len(predicate) > 0 {
-		pred = predicate[0]
+		fn = predicate[0]
 	} else {
-		pred = PredicateFn(dist)
+		fn = PredicateFn(dist)
 	}
 
-	return database.KNN(g, -1, score, pred)
+	return database.Knn(g.BBox(), -1, score, fn)
 }
 
 //score function
-func ScoreFn(query igeom.IGeom) func(_, item rtree.BoxObj) float64 {
-	return func(_, item rtree.BoxObj) float64 {
+func ScoreFn(query geom.Geometry) func(_ *mbr.MBR, item *rtree.KObj) float64 {
+	return func(_ *mbr.MBR, item *rtree.KObj) float64 {
 		var ok bool
 		var mb *mbr.MBR
-		var other igeom.IGeom
+		var other geom.Geometry
 		//item is box from rtree
-		if mb, ok = item.(*mbr.MBR); ok {
+		if mb, ok = item.GetItem().Object.(*mbr.MBR); ok {
 			other = box.MBRToPolygon(mb)
 		} else { //item is either ctxgeom or node.Node
-			if other, ok = item.(*ctx.ContextGeometry); !ok {
-				other = item.(*node.Node)
+			if item.GetItem().Object == nil {
+				other = box.MBRToPolygon(item.MBR)
+			} else if o, ok := item.GetItem().Object.(*node.Node); ok {
+				other = o.Geometry
+			} else if o, ok := item.GetItem().Object.(*ctx.ContextGeometry); ok {
+				other = o.Geom
+			} else {
+				panic("unimplemented !")
 			}
 		}
-		return query.Geometry().Distance(other.Geometry())
+		return query.Distance(other)
 	}
 }
 
 //predicate function
 func PredicateFn(dist float64) func(*rtree.KObj) (bool, bool) {
 	return func(candidate *rtree.KObj) (bool, bool) {
-		if candidate.Score() <= dist {
+		if candidate.Dist <= dist {
 			return true, false
 		}
 		return false, true
