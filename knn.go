@@ -22,8 +22,7 @@ func Find(database *rtree.RTree, g geom.Geometry, dist float64,
 	} else {
 		fn = PredicateFn(dist)
 	}
-
-	return database.Knn(g.BBox(), -1, score, fn)
+	return database.Knn(g.Bounds(), -1, score, fn)
 }
 
 //score function
@@ -34,10 +33,10 @@ func ScoreFn(query geom.Geometry) func(_ *mbr.MBR, item *rtree.KObj) float64 {
 		var other geom.Geometry
 		//item is box from rtree
 		if mb, ok = item.GetItem().Object.(*mbr.MBR); ok {
-			other = box.MBRToPolygon(mb)
+			other = box.MBRToPolygon(*mb)
 		} else { //item is either ctxgeom or node.Node
 			if item.GetItem().Object == nil {
-				other = box.MBRToPolygon(item.MBR)
+				other = box.MBRToPolygon(*item.MBR)
 			} else if o, ok := item.GetItem().Object.(*node.Node); ok {
 				other = o.Geometry
 			} else if o, ok := item.GetItem().Object.(*ctx.ContextGeometry); ok {

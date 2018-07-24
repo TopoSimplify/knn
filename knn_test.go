@@ -46,17 +46,17 @@ func TestDB(t *testing.T) {
 		"POLYGON (( 410 340, 410 430, 420 430, 420 340, 410 340 ))",
 	}
 	g.Describe("rtree knn", func() {
-		scoreFn := func(q *mbr.MBR, item *rtree.KObj) float64 {
+		var scoreFn = func(q *mbr.MBR, item *rtree.KObj) float64 {
 			return q.Distance(item.MBR)
 		}
 		g.It("should test k nearest neighbour", func() {
-			var objs = make([]*rtree.Obj, 0)
+			var objects = make([]*rtree.Obj, 0)
 			for i := range wkts {
 				var g = geom.ReadGeometry(wkts[i])
-				objs = append(objs, rtree.Object(i, g.BBox(), g))
+				objects = append(objects, rtree.Object(i, g.Bounds(), g))
 			}
 			var tree = rtree.NewRTree()
-			tree.Load(objs)
+			tree.Load(objects)
 			q := geom.ReadGeometry("POLYGON (( 370 300, 370 330, 400 330, 400 300, 370 300 ))")
 
 			results := Find(tree, q, 15, scoreFn)
@@ -73,8 +73,9 @@ func TestDB(t *testing.T) {
 			var hulls = createNodes([][]int{{0, 3}, {3, 8}, {8, 13}, {13, 17}, {17, len(coords) - 1}}, coords)
 			tree := rtree.NewRTree(2)
 			for i := range hulls {
-				tree.Insert(rtree.Object(i, hulls[i].BBox(), hulls[i]))
+				tree.Insert(rtree.Object(i, hulls[i].Bounds(), hulls[i]))
 			}
+
 			var q = hulls[0]
 			var vs = FindNeighbours(tree, q.Geometry, 0)
 			g.Assert(len(vs)).Equal(2)
