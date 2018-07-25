@@ -10,7 +10,7 @@ import (
 	"github.com/TopoSimplify/rng"
 	"github.com/TopoSimplify/dp"
 	"github.com/TopoSimplify/hdb"
-	"fmt"
+	"github.com/intdxdt/mbr"
 )
 
 type iG struct{ g geom.Geometry }
@@ -25,48 +25,46 @@ func linearCoords(wkt string) []geom.Point {
 
 func createNodes(indxs [][]int, coords []geom.Point) []*node.Node {
 	var poly = pln.New(coords)
-	var hulls = make([]*node.Node, 0)
+	var hulls = make([]*node.Node, 0, len(indxs))
 	for i := range indxs {
 		var r = rng.Range(indxs[i][0], indxs[i][1])
-		var nd = node.New(poly.SubCoordinates(r), r, dp.NodeGeometry)
-		fmt.Println(nd.Geometry.WKT())
-		hulls = append(hulls, nd)
+		hulls = append(hulls, node.New(poly.SubCoordinates(r), r, dp.NodeGeometry))
 	}
 	return hulls
 }
 
 func TestDB(t *testing.T) {
-	g := goblin.Goblin(t)
-	//wkts := []string{
-	//	"POINT ( 190 310 )", "POINT ( 220 400 )", "POINT ( 260 200 )", "POINT ( 260 340 )",
-	//	"POINT ( 260 290 )", "POINT ( 310 280 )", "POINT ( 350 250 )", "POINT ( 350 330 )",
-	//	"POINT ( 380 370 )", "POINT ( 400 240 )", "POINT ( 410 310 )",
-	//	"POLYGON (( 160 340, 160 380, 180 380, 180 340, 160 340 ))",
-	//	"POLYGON (( 180 240, 180 280, 210 280, 210 240, 180 240 ))",
-	//	"POLYGON (( 280 370, 280 400, 300 400, 300 370, 280 370 ))",
-	//	"POLYGON (( 340 210, 340 230, 360 230, 360 210, 340 210 ))",
-	//	"POLYGON (( 410 340, 410 430, 420 430, 420 340, 410 340 ))",
-	//}
+	var g    = goblin.Goblin(t)
+	var wkts = []string{
+		"POINT ( 190 310 )", "POINT ( 220 400 )", "POINT ( 260 200 )", "POINT ( 260 340 )",
+		"POINT ( 260 290 )", "POINT ( 310 280 )", "POINT ( 350 250 )", "POINT ( 350 330 )",
+		"POINT ( 380 370 )", "POINT ( 400 240 )", "POINT ( 410 310 )",
+		"POLYGON (( 160 340, 160 380, 180 380, 180 340, 160 340 ))",
+		"POLYGON (( 180 240, 180 280, 210 280, 210 240, 180 240 ))",
+		"POLYGON (( 280 370, 280 400, 300 400, 300 370, 280 370 ))",
+		"POLYGON (( 340 210, 340 230, 360 230, 360 210, 340 210 ))",
+		"POLYGON (( 410 340, 410 430, 420 430, 420 340, 410 340 ))",
+	}
 	g.Describe("rtree knn", func() {
-		//var scoreFn = func(q *mbr.MBR, item *hdb.KObj) float64 {
-		//	return q.Distance(item.MBR)
-		//}
-		//
-		//g.It("should test k nearest neighbour", func() {
-		//	var objects = make([]*node.Node, 0)
-		//	for i := range wkts {
-		//		var g = geom.ReadGeometry(wkts[i])
-		//		objects = append(objects, &node.Node{Id: i, MBR: g.Bounds(), Geometry: g})
-		//	}
-		//	var tree = hdb.NewHdb()
-		//	tree.Load(objects)
-		//	var q = geom.ReadGeometry("POLYGON (( 370 300, 370 330, 400 330, 400 300, 370 300 ))")
-		//	var results = Find(tree, q, 15, scoreFn)
-		//
-		//	g.Assert(len(results) == 2)
-		//	results = Find(tree, q, 20, scoreFn)
-		//	g.Assert(len(results) == 3)
-		//})
+		var scoreFn = func(q *mbr.MBR, item *hdb.KObj) float64 {
+			return q.Distance(item.MBR)
+		}
+
+		g.It("should test k nearest neighbour", func() {
+			var objects = make([]*node.Node, 0)
+			for i := range wkts {
+				var g = geom.ReadGeometry(wkts[i])
+				objects = append(objects, &node.Node{Id: i, MBR: g.Bounds(), Geometry: g})
+			}
+			var tree = hdb.NewHdb()
+			tree.Load(objects)
+			var q = geom.ReadGeometry("POLYGON (( 370 300, 370 330, 400 330, 400 300, 370 300 ))")
+			var results = Find(tree, q, 15, scoreFn)
+
+			g.Assert(len(results) == 2)
+			results = Find(tree, q, 20, scoreFn)
+			g.Assert(len(results) == 3)
+		})
 
 		g.It("should test k nearest node neighbour", func() {
 			g.Timeout(1 * time.Hour)

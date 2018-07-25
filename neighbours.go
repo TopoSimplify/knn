@@ -28,7 +28,7 @@ func NodePredicateFn(query *node.Node, dist float64) func(*hdb.KObj) (bool, bool
 		}
 
 		// if intersects or distance from context neighbours is within dist
-		if query.Geometry.Intersects(candhull.Geometry) || (candidate.Dist <= dist) {
+		if query.Geometry.Intersects(candhull.Geometry) || (candidate.Distance <= dist) {
 			return true, false
 		}
 		return false, true

@@ -46,7 +46,7 @@ func ScoreFn(query geom.Geometry) func(_ *mbr.MBR, item *hdb.KObj) float64 {
 //predicate function
 func PredicateFn(dist float64) func(*hdb.KObj) (bool, bool) {
 	return func(candidate *hdb.KObj) (bool, bool) {
-		if candidate.Dist <= dist {
+		if candidate.Distance <= dist {
 			return true, false
 		}
 		return false, true
