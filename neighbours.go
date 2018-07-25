@@ -1,26 +1,26 @@
 package knn
 
 import (
-	"github.com/TopoSimplify/node"
-	"github.com/intdxdt/rtree"
 	"github.com/intdxdt/geom"
+	"github.com/TopoSimplify/node"
+	"github.com/TopoSimplify/hdb"
 )
 
 //find context neighbours
-func FindNeighbours(database *rtree.RTree, query geom.Geometry, dist float64) []*rtree.Obj {
+func FindNeighbours(database *hdb.Hdb, query geom.Geometry, dist float64) []*node.Node {
 	return Find(database, query, dist, ScoreFn(query))
 }
 
 //find context hulls
-func FindNodeNeighbours(database *rtree.RTree, hull *node.Node, dist float64) []*rtree.Obj {
+func FindNodeNeighbours(database *hdb.Hdb, hull *node.Node, dist float64) []*node.Node {
 	return Find(database, hull.Geometry, dist, ScoreFn(hull.Geometry), NodePredicateFn(hull, dist))
 }
 
 //hull predicate within index range i, j.
-func NodePredicateFn(query *node.Node, dist float64) func(*rtree.KObj) (bool, bool) {
+func NodePredicateFn(query *node.Node, dist float64) func(*hdb.KObj) (bool, bool) {
 	//@formatter:off
-	return func(candidate *rtree.KObj) (bool, bool) {
-		var candhull = candidate.GetItem().Object.(*node.Node)
+	return func(candidate *hdb.KObj) (bool, bool) {
+		var candhull = candidate.GetNode()
 
 		// same hull
 		if candhull.Range.Equals(query.Range) {
