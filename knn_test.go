@@ -24,11 +24,11 @@ func linearCoords(wkt string) []geom.Point {
 }
 
 func createNodes(indxs [][]int, coords []geom.Point) []*node.Node {
-	var poly = pln.New(coords)
+	var poly = pln.CreatePolyline(coords)
 	var hulls = make([]*node.Node, 0, len(indxs))
 	for i := range indxs {
 		var r = rng.Range(indxs[i][0], indxs[i][1])
-		hulls = append(hulls, node.New(poly.SubCoordinates(r), r, dp.NodeGeometry))
+		hulls = append(hulls, node.CreateNode(poly.SubCoordinates(r), r, dp.NodeGeometry))
 	}
 	return hulls
 }
@@ -54,7 +54,7 @@ func TestDB(t *testing.T) {
 			var objects = make([]*node.Node, 0)
 			for i := range wkts {
 				var g = geom.ReadGeometry(wkts[i])
-				objects = append(objects, &node.Node{Id: i, MBR: g.Bounds(), Geometry: g})
+				objects = append(objects, &node.Node{Id: i, MBR: g.Bounds(), Geom: g})
 			}
 			var tree = hdb.NewHdb()
 			tree.Load(objects)
@@ -73,11 +73,11 @@ func TestDB(t *testing.T) {
 			var hulls = createNodes([][]int{{0, 3}, {3, 8}, {8, 13}, {13, 17}, {17, len(coords) - 1}}, coords)
 			var tree = hdb.NewHdb(2)
 			for i := range hulls {
-				tree.Insert(hulls[i])
+				tree.insert(hulls[i])
 			}
 
 			var q = hulls[0]
-			var vs = FindNeighbours(tree, q.Geometry, 0)
+			var vs = FindNeighbours(tree, q.Geom, 0)
 			g.Assert(len(vs)).Equal(2)
 			vs = FindNodeNeighbours(tree, q, 0)
 			g.Assert(len(vs)).Equal(1)

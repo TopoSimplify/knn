@@ -35,7 +35,7 @@ func ScoreFn(query geom.Geometry) func(_ *mbr.MBR, item *hdb.KObj) float64 {
 		if nd == nil {
 			other = box.MBRToPolygon(*item.MBR)
 		} else {
-			other = nd.Geometry
+			other = nd.Geom
 		}
 		//if o, ok := item.GetNode().(*ctx.ContextGeometry); ok {
 		//	other = o.Geom

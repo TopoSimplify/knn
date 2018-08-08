@@ -13,7 +13,7 @@ func FindNeighbours(database *hdb.Hdb, query geom.Geometry, dist float64) []*nod
 
 //find context hulls
 func FindNodeNeighbours(database *hdb.Hdb, hull *node.Node, dist float64) []*node.Node {
-	return Find(database, hull.Geometry, dist, ScoreFn(hull.Geometry), NodePredicateFn(hull, dist))
+	return Find(database, hull.Geom, dist, ScoreFn(hull.Geom), NodePredicateFn(hull, dist))
 }
 
 //hull predicate within index range i, j.
@@ -28,7 +28,7 @@ func NodePredicateFn(query *node.Node, dist float64) func(*hdb.KObj) (bool, bool
 		}
 
 		// if intersects or distance from context neighbours is within dist
-		if query.Geometry.Intersects(candhull.Geometry) || (candidate.Distance <= dist) {
+		if query.Geom.Intersects(candhull.Geom) || (candidate.Distance <= dist) {
 			return true, false
 		}
 		return false, true
