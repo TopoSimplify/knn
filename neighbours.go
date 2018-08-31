@@ -8,12 +8,12 @@ import (
 
 //find context neighbours
 func FindNeighbours(database *hdb.Hdb, query geom.Geometry, dist float64) []*node.Node {
-	return Find(database, query, dist, ScoreFn(query))
+	return find(database, query, dist, ScoreFn(query))
 }
 
 //find context hulls
 func FindNodeNeighbours(database *hdb.Hdb, hull *node.Node, dist float64) []*node.Node {
-	return Find(database, hull.Geom, dist, ScoreFn(hull.Geom), NodePredicateFn(hull, dist))
+	return find(database, hull.Geom, dist, ScoreFn(hull.Geom), NodePredicateFn(hull, dist))
 }
 
 //hull predicate within index range i, j.

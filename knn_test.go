@@ -15,12 +15,6 @@ import (
 	"github.com/TopoSimplify/lnr"
 )
 
-type iG struct{ g geom.Geometry }
-
-func (o *iG) Geometry() geom.Geometry {
-	return o.g
-}
-
 func linearCoords(wkt string) geom.Coords {
 	return geom.NewLineStringFromWKT(wkt).Coordinates
 }
@@ -62,10 +56,10 @@ func TestDB(t *testing.T) {
 			var tree = hdb.NewHdb()
 			tree.Load(objects)
 			var q = geom.ReadGeometry("POLYGON (( 370 300, 370 330, 400 330, 400 300, 370 300 ))")
-			var results = Find(tree, q, 15, scoreFn)
+			var results = find(tree, q, 15, scoreFn)
 
 			g.Assert(len(results) == 2)
-			results = Find(tree, q, 20, scoreFn)
+			results = find(tree, q, 20, scoreFn)
 			g.Assert(len(results) == 3)
 		})
 

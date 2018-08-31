@@ -11,7 +11,7 @@ import (
 const EpsilonDist = 1.0e-5
 
 //find knn
-func Find(database *hdb.Hdb, g geom.Geometry, dist float64,
+func find(database *hdb.Hdb, g geom.Geometry, dist float64,
 	score func(*mbr.MBR, *hdb.KObj) float64,
 	predicate ... func(*hdb.KObj) (bool, bool)) []*node.Node {
 
