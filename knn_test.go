@@ -72,9 +72,9 @@ func TestDB(t *testing.T) {
 			tree.Load(hulls)
 
 			var q = hulls[0]
-			var vs = FindNeighbours(tree, q.Geom, 0)
+			var vs = ContextNeighbours(tree, q.Geom, 0)
 			g.Assert(len(vs)).Equal(2)
-			vs = FindNodeNeighbours(tree, &q, 0)
+			vs = NodeNeighbours(tree, &q, 0)
 			g.Assert(len(vs)).Equal(1)
 		})
 	})
