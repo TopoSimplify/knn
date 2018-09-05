@@ -37,8 +37,6 @@ func ScoreFn(query geom.Geometry) func(_ *mbr.MBR, item *hdb.KObj) float64 {
 		} else {
 			other = nd.Geom
 		}
-		//if o, ok := item.GetNode().(*ctx.ContextGeometry); ok {
-		//	other = o.Geom
 		return query.Distance(other)
 	}
 }

@@ -3,16 +3,16 @@ package knn
 import (
 	"time"
 	"testing"
-	"github.com/intdxdt/geom"
-	"github.com/franela/goblin"
-	"github.com/TopoSimplify/node"
-	"github.com/TopoSimplify/pln"
-	"github.com/TopoSimplify/rng"
-	"github.com/TopoSimplify/hdb"
 	"github.com/intdxdt/mbr"
-	"github.com/TopoSimplify/common"
+	"github.com/intdxdt/geom"
 	"github.com/intdxdt/iter"
+	"github.com/franela/goblin"
 	"github.com/TopoSimplify/lnr"
+	"github.com/TopoSimplify/pln"
+	"github.com/TopoSimplify/hdb"
+	"github.com/TopoSimplify/rng"
+	"github.com/TopoSimplify/node"
+	"github.com/TopoSimplify/common"
 )
 
 func linearCoords(wkt string) geom.Coords {
