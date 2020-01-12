@@ -1,11 +1,11 @@
 package knn
 
 import (
-	"github.com/intdxdt/mbr"
-	"github.com/intdxdt/geom"
 	"github.com/TopoSimplify/box"
-	"github.com/TopoSimplify/node"
 	"github.com/TopoSimplify/hdb"
+	"github.com/TopoSimplify/node"
+	"github.com/intdxdt/geom"
+	"github.com/intdxdt/mbr"
 )
 
 const EpsilonDist = 1.0e-5
@@ -13,7 +13,7 @@ const EpsilonDist = 1.0e-5
 //find knn
 func find(database *hdb.Hdb, g geom.Geometry, dist float64,
 	score func(*mbr.MBR, *hdb.KObj) float64,
-	predicate ... func(*hdb.KObj) (bool, bool)) []*node.Node {
+	predicate ...func(*hdb.KObj) (bool, bool)) []*node.Node {
 
 	var fn func(*hdb.KObj) (bool, bool)
 

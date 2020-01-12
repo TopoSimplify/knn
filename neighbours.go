@@ -1,9 +1,9 @@
 package knn
 
 import (
-	"github.com/intdxdt/geom"
-	"github.com/TopoSimplify/node"
 	"github.com/TopoSimplify/hdb"
+	"github.com/TopoSimplify/node"
+	"github.com/intdxdt/geom"
 )
 
 //find context neighbours by a certain distance
